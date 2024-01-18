@@ -156,7 +156,7 @@ print(weekly_url)
 # Task 1: liked_songs
 subfolder_name_1 = "1_likedsongs"
 formatted_output_1 = '{artists} - {title}.{output-ext}'
-spotdl_command_1 = f'spotdl sync saved --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u Liked_Songs.m3u '
+spotdl_command_1 = f'spotdl sync saved --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u 1_Liked_Songs.m3u '
 run_spotdl(output_directory, subfolder_name_1, spotdl_command_1)
 
 # Task 2: Discover Weekly playlist with week number and year
