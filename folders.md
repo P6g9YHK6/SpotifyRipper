@@ -1,0 +1,58 @@
+- **output_directory**
+  - **1_likedsongs**
+    - 1_Liked_Songs.m3u
+    - likedsongsERR.txt
+    - Liked Artist 1 - Song 1.mp3
+    - Liked Artist 2 - Song 2.mp3
+    - ...
+
+  - **1_discover_weekly**
+    - Week_23_2024
+      - discover_weekly.spotdl
+      - discover_weeklyERR.txt
+      - Week_23_2024.m3u
+      - Artist 1 - Song 1.mp3
+      - Artist 2 - Song 2.mp3
+      - ...
+
+  - **1_playlists**
+    - playlists.spotdl
+    - playlistsERR.txt
+    - **Playlist 1**
+      - Artist 1 - Song 1.mp3
+      - Artist 2 - Song 2.mp3
+      - ...
+      - Playlist 1.m3u
+    - **Playlist 2**
+      - Artist 1 - Song 1.mp3
+      - Artist 2 - Song 2.mp3
+      - ...
+      - Playlist 2.m3u
+    - ...
+
+  - **artists**
+    - artists.spotdl
+    - artistsERR.txt
+    - **Artist 1**
+      - **Album 1**
+        - Artist 1 - Song 1.mp3
+        - Artist 1 - Song 2.mp3
+        - ...
+      - **Album 2**
+        - Artist 1 - Song 1.mp3
+        - Artist 1 - Song 2.mp3
+        - ...
+      - ...
+    - **Artist 2**
+      - **Album 1**
+        - Artist 2 - Song 1.mp3
+        - Artist 2 - Song 2.mp3
+        - ...
+      - **Album 2**
+        - Artist 2 - Song 1.mp3
+        - Artist 2 - Song 2.mp3
+        - ...
+      - ...
+    - ...
+
+  - missing.txt
