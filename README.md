@@ -1,12 +1,13 @@
 ## Spotify Music Ripper
 
-Created this tool because Lidarr wasn't working for me. I utilize Spotify as a dashboard to control the downloads, the .py script to download and listen to music through Navidrome.
+Created this tool because Lidarr wasn't working for me. I utilize Spotify as a dashboard to control the downloads, the .py script to download and listen to music through [Navidrome](https://www.navidrome.org/) and it's galaxy of [mobile apps](https://www.reddit.com/r/navidrome/comments/n9gncz/which_android_app_are_you_all_using_with_navidrome/).
 
 All of which seems to be the least problematic FOSS/self-hosted/homelab system for unconventional music tastes.
 
 
 ### Functionality:
 Downloads liked songs, all saved playlist, saved albums, saved artists, the current week's Discover Weekly and it will keep them organised for long term storage. Generates .m3u files for Navidrome/Jellyfin and outputs missing items in a `.txt` file.
+
 
 ### Curent State:
 Functional
