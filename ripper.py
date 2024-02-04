@@ -1,12 +1,3 @@
-import os
-import subprocess
-import datetime
-from mutagen.easyid3 import EasyID3
-import re
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from pydub import AudioSegment
-
 # Output directory:
 output_directory = r"\\XXXXXXXXX"
 
@@ -15,6 +6,52 @@ SPOTIPY_CLIENT_ID = 'xxxxxxx'
 SPOTIPY_CLIENT_SECRET = 'xxxxxxxxx'
 SPOTIPY_REDIRECT_URI = 'https://xxxxxxxxxx'
 SPOTIPY_USERNAME = 'xxxxxxxxxx'
+
+
+import subprocess
+import re
+import datetime
+import os
+
+def setup_lib():
+    try:
+        # Upgrade pip
+        subprocess.run(["py", "-m", "ensurepip", "--upgrade"])
+
+        # Install spotdl
+        subprocess.run(["pip", "install", "spotdl"])
+
+        # Download ffmpeg for spotdl (automatically answer 'y' to overwrite)
+        subprocess.run(["spotdl", "--download-ffmpeg"], input=b'n\n')
+
+        # Install pydub
+        subprocess.run(["pip", "install", "pydub"])
+
+        # Install mutagen
+        subprocess.run(["pip", "install", "mutagen"])
+
+        # Install spotipy
+        subprocess.run(["pip", "install", "spotipy"])
+
+        print("Setup completed successfully.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error during setup: {e}")
+        return False
+    except Exception as e:
+        print(f"Unexpected error during setup: {e}")
+        return False
+
+# Run the setup
+setup_lib()
+
+#import after setup
+from mutagen.easyid3 import EasyID3
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from pydub import AudioSegment
+
+
 
 def populate_playlists_and_weekly_url(client_id, client_secret, redirect_uri, username):
     # Set up Spotipy client
@@ -136,7 +173,7 @@ def delete_long_songs(output_directory):
 #Each task is independant and can be commented out
 
 '''
-#Link to weekly discovery playlist if you want to set manually the list without the api commentent task 0
+#Link to weekly discovery playlist if you want to set manually the list without the api com task 0
 weekly_url = "https://open.spotify.com/playlist/XXXXXXXXXXXXXXXX"
 # List of playlists to download if you want to set manually the list without the api
 playlists_list = "https://open.spotify.com/playlist/XXXXXXXXXXXXXXXXXXXXXXX https://open.spotify.com/playlist/XXXXXXXXXXXXXXXXXXXXXXX"
@@ -156,7 +193,7 @@ print(weekly_url)
 # Task 1: liked_songs
 subfolder_name_1 = "1_likedsongs"
 formatted_output_1 = '{artists} - {title}.{output-ext}'
-spotdl_command_1 = f'spotdl sync saved --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u 1_Liked_Songs.m3u '
+spotdl_command_1 = f'spotdl sync saved --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u _Liked_Songs.m3u '
 run_spotdl(output_directory, subfolder_name_1, spotdl_command_1)
 
 # Task 2: Discover Weekly playlist with week number and year
@@ -190,8 +227,6 @@ subfolder_name_5 = "artists"
 formatted_output_5 = '{album-artist}/{album}/{artists} - {title}.{output-ext}'
 spotdl_command_5 = f'spotdl sync all-user-saved-albums --format mp3 --sync-without-deleting --user-auth --save-errors albumsERR.txt --save-file albums.spotdl --output "{formatted_output_5}" '
 run_spotdl(output_directory, subfolder_name_5, spotdl_command_5)
-
-
 
 # Task 6: delete fuckups and compile error logs
 #delete_long_songs(output_directory)
