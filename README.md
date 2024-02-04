@@ -20,7 +20,7 @@ Functional
 - if [this issue](https://github.com/spotDL/spotify-downloader/issues/1998) is resolved, remove the api scraper and reset the weekly manualy.
 - troubleshoot --sponsor-block check why ffmpeg issue it would be nice to be a default everywhere in any case
 - automate the variables
-
+- DOCKERIZE
 
 ### How to use:
 - https://www.python.org/downloads/
