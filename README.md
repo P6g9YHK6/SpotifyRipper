@@ -26,6 +26,7 @@ Functional
 - https://www.python.org/downloads/
 - download reaper.py
 - Fill in the variables in reaper.py:
+
       # Output directory:
       output_directory = 
       #API FOR THE EXTRACTOR
@@ -33,4 +34,5 @@ Functional
       SPOTIPY_CLIENT_SECRET = 
       SPOTIPY_REDIRECT_URI = 
       SPOTIPY_USERNAME = 
+
 - run "py ripper.py" in a terminal
