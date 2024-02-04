@@ -20,16 +20,19 @@ Functional
 - if [this issue](https://github.com/spotDL/spotify-downloader/issues/1998) is resolved, remove the api scraper and reset the weekly manualy.
 - troubleshoot --sponsor-block check why ffmpeg issue it would be nice to be a default everywhere in any case
 - automate the variables
-- setup the requirement in the script
-
+- DOCKERIZE
 
 ### How to use:
 - https://www.python.org/downloads/
-- py -m ensurepip --upgrade
-- pip install spotdl
-- spotdl --download-ffmpeg
-- pip install pydub
+- download reaper.py
+- Fill in the variables in reaper.py:
 
-then:
+      # Output directory:
+      output_directory = 
+      #API FOR THE EXTRACTOR
+      SPOTIPY_CLIENT_ID = 
+      SPOTIPY_CLIENT_SECRET = 
+      SPOTIPY_REDIRECT_URI = 
+      SPOTIPY_USERNAME = 
 
-Fill in the variables and run the script.
+- run "py ripper.py" in a terminal
