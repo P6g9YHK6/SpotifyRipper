@@ -4,7 +4,7 @@ output_directory = r"\\XXXXXXXXX"
 #API FOR THE EXTRACTOR
 SPOTIPY_CLIENT_ID = 'xxxxxxx'
 SPOTIPY_CLIENT_SECRET = 'xxxxxxxxx'
-SPOTIPY_REDIRECT_URI = 'https://xxxxxxxxxx'
+SPOTIPY_REDIRECT_URI = 'http://localhost:8888/callback'
 SPOTIPY_USERNAME = 'xxxxxxxxxx'
 
 
@@ -53,25 +53,54 @@ from pydub import AudioSegment
 
 
 
-def populate_playlists_and_weekly_url(client_id, client_secret, redirect_uri, username):
+def fetch_user_data(client_id, client_secret, redirect_uri, username):
     # Set up Spotipy client
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=client_id,
-                                                   client_secret=client_secret,
-                                                   redirect_uri=redirect_uri,
-                                                   scope="playlist-read-private",
-                                                   username=username))
+    sp_oauth = SpotifyOAuth(client_id=client_id,
+                            client_secret=client_secret,
+                            redirect_uri=redirect_uri,
+                            scope="playlist-read-private user-library-read user-follow-read",
+                            username=username)
 
-    # Get user's playlists
+    # Get authorization URL
+    auth_url = sp_oauth.get_authorize_url()
+
+    print("Authorization URL:", auth_url)
+
+    # Continue with authorization flow...
+    sp = spotipy.Spotify(auth_manager=sp_oauth)
+
+    # Get user's playlists, saved tracks, followed artists, etc.
     playlists = sp.current_user_playlists()
-
-    # Exclude Discover Weekly playlist
     excluded_playlist_name = 'Discover Weekly'
     playlists_list = ' '.join([f"https://open.spotify.com/playlist/{playlist['id']}" for playlist in playlists['items'] if playlist['name'] != excluded_playlist_name])
-
-    # Get the URL for the user's Discover Weekly playlist
     weekly_url = next((playlist['external_urls']['spotify'] for playlist in playlists['items'] if playlist['name'] == excluded_playlist_name), None)
 
-    return playlists_list, weekly_url
+    saved_tracks_urls = []
+    saved_tracks_response = sp.current_user_saved_tracks(limit=50)  # Adjust limit as needed
+    saved_tracks_urls.extend([f"https://open.spotify.com/track/{track['track']['id']}" for track in saved_tracks_response['items']])
+    while saved_tracks_response['next']:
+        saved_tracks_response = sp.next(saved_tracks_response)
+        saved_tracks_urls.extend([f"https://open.spotify.com/track/{track['track']['id']}" for track in saved_tracks_response['items']])
+    saved_tracks_urls = ' '.join(saved_tracks_urls)
+
+    followed_artists_urls = []
+    followed_artists_response = sp.current_user_followed_artists(limit=50)  # Adjust limit as needed
+    followed_artists_urls.extend([artist['external_urls']['spotify'] for artist in followed_artists_response['artists']['items']])
+    while followed_artists_response['artists']['next']:
+        followed_artists_response = sp.next(followed_artists_response['artists'])
+        followed_artists_urls.extend([artist['external_urls']['spotify'] for artist in followed_artists_response['artists']['items']])
+    followed_artists_urls = ' '.join(followed_artists_urls)
+
+    saved_albums_urls = []
+    saved_albums_response = sp.current_user_saved_albums(limit=50)  # Adjust limit as needed
+    saved_albums_urls.extend([album['album']['external_urls']['spotify'] for album in saved_albums_response['items']])
+    while saved_albums_response['next']:
+        saved_albums_response = sp.next(saved_albums_response)
+        saved_albums_urls.extend([album['album']['external_urls']['spotify'] for album in saved_albums_response['items']])
+    saved_albums_urls = ' '.join(saved_albums_urls)
+
+    return playlists_list, weekly_url, saved_tracks_urls, followed_artists_urls, saved_albums_urls
+
 
 
 def run_spotdl(output_directory, subfolder_name, spotdl_command):
@@ -139,78 +168,47 @@ def find_and_create_missing_file(output_directory):
 
     print("missing.txt file created.")
 
-
-def delete_long_songs(output_directory):
-    print("\nDeleting songs longer than 59 minutes...")
-
-    # Open or create the deletedERR.txt file
-    with open(os.path.join(output_directory, 'deletedERR.txt'), 'w', encoding='utf-8') as deleted_file:
-        # Iterate through all files in the specified directory and its subdirectories
-        for root, dirs, files in os.walk(output_directory):
-            for file in files:
-                # Check if the file ends with .mp3
-                if file.endswith('.mp3'):
-                    full_path = os.path.join(root, file)
-
-                    try:
-                        # Load the audio file using pydub
-                        audio = AudioSegment.from_file(full_path)
-
-                        # Get the duration in minutes
-                        duration_minutes = len(audio) / (60 * 1000)
-
-                        # Delete the file if duration is longer than 59 minutes
-                        if duration_minutes > 59:
-                            os.remove(full_path)
-                            deleted_file.write(f"{os.path.splitext(file)[0]}\n")
-                            print(f"Deleted: {file}")
-                    except Exception as e:
-                        print(f"Error processing '{file}': {e}")
-
-    print("Deletion of long songs completed.")
-
-
-#Each task is independant and can be commented out
-
-'''
-#Link to weekly discovery playlist if you want to set manually the list without the api com task 0
-weekly_url = "https://open.spotify.com/playlist/XXXXXXXXXXXXXXXX"
-# List of playlists to download if you want to set manually the list without the api
-playlists_list = "https://open.spotify.com/playlist/XXXXXXXXXXXXXXXXXXXXXXX https://open.spotify.com/playlist/XXXXXXXXXXXXXXXXXXXXXXX"
-'''
 '''
 Cheatlist:
  available variables for file names: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
 '''
 
-# Task 0: build playlist list
-playlists_list, weekly_url = populate_playlists_and_weekly_url(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, SPOTIPY_USERNAME)
-print("Generated playlists_list (excluding Discover Weekly):")
+# Task 0
+# Call the function to fetch user data
+playlists_list, weekly_url, saved_tracks_url, followed_artists_url, saved_albums_url = fetch_user_data(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, SPOTIPY_USERNAME)
+#debug output
+("Generated playlists_list (excluding Discover Weekly):")
 print(playlists_list)
 print("Generated weekly_url:")
 print(weekly_url)
+print("Generated saved_tracks_list:")
+print(saved_tracks_url)
+print("Generated followed_artists_list:")
+print(followed_artists_url)
+print("Generated saved_albums_list:")
+print(saved_albums_url)
 
 # Task 1: liked_songs
 subfolder_name_1 = "1_likedsongs"
 formatted_output_1 = '{artists} - {title}.{output-ext}'
-spotdl_command_1 = f'spotdl sync saved --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u _Liked_Songs.m3u '
+spotdl_command_1 = f'spotdl sync {get_saved_tracks_list(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, SPOTIPY_USERNAME)} --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u _Liked_Songs.m3u '
 run_spotdl(output_directory, subfolder_name_1, spotdl_command_1)
 
 # Task 2: Discover Weekly playlist with week number and year
-#Format the week numer
-iso_calendar_date = datetime.date.today().isocalendar()
-formatted_week_and_year = f"Week_{iso_calendar_date.week}_{iso_calendar_date.year}"
+# Format the week number and year
+current_date = datetime.date.today()
+formatted_week_and_year = f"{current_date.year % 100:02d}_{current_date.isocalendar()[1]:02d}"
 print("Formatted Week and Year:", formatted_week_and_year)
 
-subfolder_name_2 = f"1_discover_weekly\\{formatted_week_and_year}"
+subfolder_name_2 = f"{formatted_week_and_year}"
 formatted_output_2 = '{artists} - {title}.{output-ext}'
-spotdl_command_2 = f'spotdl sync {weekly_url} --format mp3 --user-auth --playlist-numbering --save-errors discover_weeklyERR.txt --save-file discover_weekly.spotdl --output "{formatted_output_2}" --m3u {formatted_week_and_year}.m3u '
+spotdl_command_2 = f'spotdl sync {weekly_url} --format mp3 --playlist-numbering --save-errors discover_weeklyERR.txt --save-file discover_weekly.spotdl --output "{formatted_output_2}" --m3u {formatted_week_and_year}.m3u '
 run_spotdl(output_directory, subfolder_name_2, spotdl_command_2)
 
-# Task 3: all-user-saved-playlists
+# Task 3: all users playlists
 subfolder_name_3 = "1_playlists"
 formatted_output_3 = '{album}/{artists} - {title}.{output-ext}'
-spotdl_command_3 = f'spotdl sync {playlists_list} --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors playlistsERR.txt --save-file playlists.spotdl --output "{formatted_output_3}" '
+spotdl_command_3 = f'spotdl sync {playlists_list} --format mp3 --sync-without-deleting --playlist-numbering --save-errors playlistsERR.txt --save-file playlists.spotdl --output "{formatted_output_3}" '
 run_spotdl(output_directory, subfolder_name_3, spotdl_command_3)
 
 #Create playlists for each album in "playlists" folder --playlist-numbering allow to do this
@@ -219,15 +217,14 @@ create_album_playlists(output_directory, subfolder_name_3)
 # Task 4: all-user-followed-artists
 subfolder_name_4 = "artists"
 formatted_output_4 = '{album-artist}/{album}/{artists} - {title}.{output-ext}'
-spotdl_command_4 = f'spotdl sync all-user-followed-artists --format mp3 --sync-without-deleting --user-auth --save-errors artistsERR.txt --save-file artists.spotdl --output "{formatted_output_4}" '
+spotdl_command_4 = f'spotdl sync {followed_artists_url} --format mp3 --sync-without-deleting --user-auth --save-errors artistsERR.txt --save-file artists.spotdl --output "{formatted_output_4}" '
 run_spotdl(output_directory, subfolder_name_4, spotdl_command_4)
 
 # Task 5: all-user-saved-albums
 subfolder_name_5 = "artists"
 formatted_output_5 = '{album-artist}/{album}/{artists} - {title}.{output-ext}'
-spotdl_command_5 = f'spotdl sync all-user-saved-albums --format mp3 --sync-without-deleting --user-auth --save-errors albumsERR.txt --save-file albums.spotdl --output "{formatted_output_5}" '
+spotdl_command_5 = f'spotdl sync {saved_albums_url} --format mp3 --sync-without-deleting --user-auth --save-errors albumsERR.txt --save-file albums.spotdl --output "{formatted_output_5}" '
 run_spotdl(output_directory, subfolder_name_5, spotdl_command_5)
 
-# Task 6: delete fuckups and compile error logs
-#delete_long_songs(output_directory)
+# Task 6: compile error logs
 find_and_create_missing_file(output_directory)
