@@ -14,13 +14,11 @@ Functional
 
 ### TODO:
 - Determine how to handle `missing.txt` to automate downloads.
-- Investigate why it doesn't run in headless mode—possibly requires a small refactoring of spotdl regarding how it interact with the api of spotify. [DOCUMENTATION](https://spotdl.readthedocs.io/en/latest/reference/)
+- Investigate why it doesn't run in headless mode—possibly requires a small refactoring of spotdl regarding how it interact with the api of spotify. [DOCUMENTATION](https://spotdl.readthedocs.io/en/latest/reference/)   [Discord discution](https://discord.com/channels/771628785447337985/1194372614857167008)
 - Find a solution for [issue 1970](https://github.com/spotDL/spotify-downloader/issues/1970) regarding 10h/1h files.
 - Until [Issue 2000](https://github.com/spotDL/spotify-downloader/issues/2000): `--m3u {list}.m3u` is not added to playlist downloads. Once fixed, the create playlist functions can be removed. (would it play nice with subfolders ?)
-- if [this issue](https://github.com/spotDL/spotify-downloader/issues/1998) is resolved, remove the api scraper and reset the weekly manualy.
 - troubleshoot --sponsor-block check why ffmpeg issue it would be nice to be a default everywhere in any case
-- automate the variables
-- DOCKERIZE
+- automate the variables -> DOCKERIZE
 
 ### How to use:
 - https://www.python.org/downloads/
