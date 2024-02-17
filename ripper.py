@@ -7,7 +7,6 @@ SPOTIPY_CLIENT_SECRET = 'xxxxxxxxx'
 SPOTIPY_REDIRECT_URI = 'http://localhost:8888/callback'
 SPOTIPY_USERNAME = 'xxxxxxxxxx'
 
-
 import subprocess
 import re
 import datetime
@@ -177,12 +176,12 @@ Cheatlist:
 # Call the function to fetch user data
 playlists_list, weekly_url, saved_tracks_url, followed_artists_url, saved_albums_url = fetch_user_data(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, SPOTIPY_USERNAME)
 #debug output
-("Generated playlists_list (excluding Discover Weekly):")
-print(playlists_list)
-print("Generated weekly_url:")
-print(weekly_url)
 print("Generated saved_tracks_list:")
 print(saved_tracks_url)
+print("Generated weekly_url:")
+print(weekly_url)
+print("Generated playlists_list (excluding Discover Weekly):")
+print(playlists_list)
 print("Generated followed_artists_list:")
 print(followed_artists_url)
 print("Generated saved_albums_list:")
@@ -191,7 +190,7 @@ print(saved_albums_url)
 # Task 1: liked_songs
 subfolder_name_1 = "1_likedsongs"
 formatted_output_1 = '{artists} - {title}.{output-ext}'
-spotdl_command_1 = f'spotdl sync {get_saved_tracks_list(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, SPOTIPY_USERNAME)} --format mp3 --sync-without-deleting --user-auth --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u _Liked_Songs.m3u '
+spotdl_command_1 = f'spotdl sync {saved_tracks_url} --format mp3 --sync-without-deleting --playlist-numbering --save-errors likedsongsERR.txt --save-file likedsongs.spotdl --output "{formatted_output_1}" --m3u _Liked_Songs.m3u '
 run_spotdl(output_directory, subfolder_name_1, spotdl_command_1)
 
 # Task 2: Discover Weekly playlist with week number and year
@@ -217,13 +216,13 @@ create_album_playlists(output_directory, subfolder_name_3)
 # Task 4: all-user-followed-artists
 subfolder_name_4 = "artists"
 formatted_output_4 = '{album-artist}/{album}/{artists} - {title}.{output-ext}'
-spotdl_command_4 = f'spotdl sync {followed_artists_url} --format mp3 --sync-without-deleting --user-auth --save-errors artistsERR.txt --save-file artists.spotdl --output "{formatted_output_4}" '
+spotdl_command_4 = f'spotdl sync {followed_artists_url} --format mp3 --sync-without-deleting --save-errors artistsERR.txt --save-file artists.spotdl --output "{formatted_output_4}" '
 run_spotdl(output_directory, subfolder_name_4, spotdl_command_4)
 
 # Task 5: all-user-saved-albums
 subfolder_name_5 = "artists"
 formatted_output_5 = '{album-artist}/{album}/{artists} - {title}.{output-ext}'
-spotdl_command_5 = f'spotdl sync {saved_albums_url} --format mp3 --sync-without-deleting --user-auth --save-errors albumsERR.txt --save-file albums.spotdl --output "{formatted_output_5}" '
+spotdl_command_5 = f'spotdl sync {saved_albums_url} --format mp3 --sync-without-deleting --save-errors albumsERR.txt --save-file albums.spotdl --output "{formatted_output_5}" '
 run_spotdl(output_directory, subfolder_name_5, spotdl_command_5)
 
 # Task 6: compile error logs
